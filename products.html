@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hydro Plantura — Produk</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Leaflet CSS (tanpa integrity untuk menghindari SRI block) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container inner">
+      <div class="brand">
+        <!-- gunakan path lokal logo yang kamu upload -->
+        <img src="logo.png" alt="Hydro Plantura logo" style="height:56px;">
+        <div>
+          <h1>Hydro Plantura</h1>
+          <p>Grow. Design. Inspire.</p>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="products.html">Produk</a>
+        <a href="guides.html">Panduan</a>
+        <a href="about.html">Tentang</a>
+        <button class="btn-primary cart-btn" id="open-cart" data-no-transition>Keranjang 
+          <span class="cart-count" id="cart-count" style="display:none">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="products">
+
+      <!-- Custom colored dropdown (replace old <select>) -->
+<div class="filter-row">
+  <div class="filter-left">
+
+    <label for="custom-filter" class="sr-only">Filter Kategori</label>
+  </div>
+
+  <div class="filter-right">
+    <div class="custom-select" id="custom-filter" data-value="all" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+      <button type="button" class="cs-trigger" aria-label="Pilih kategori">
+        <span class="cs-label">Semua</span>
+        <span class="cs-chevron">▾</span>
+      </button>
+      <ul class="cs-options" role="listbox" aria-activedescendant="">
+        <li role="option" data-value="all" data-color="#9aa4a1" class="selected">Semua</li>
+        <li role="option" data-value="Tanaman" data-color="#20b66b">Tanaman</li>
+        <li role="option" data-value="Ikan" data-color="#2b9fd3">Ikan</li>
+        <li role="option" data-value="Hardscape" data-color="#9b6f4a">Hardscape</li>
+        <li role="option" data-value="Filter" data-color="#0fb0a0">Filter & Pompa</li>
+        <li role="option" data-value="Substrat" data-color="#f39c12">Substrat</li>
+        <li role="option" data-value="CO2" data-color="#7b5cff">CO₂ & Regulator</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+      <!-- products grid (renderer in main.js expects id="products-grid") -->
+      <div class="products-grid" id="products-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="f-grid">
+      <div>
+        <p>Premium aquascape supply — tanaman, ikan, hardscape, dan aksesoris.</p>
+      </div>
+      <div>
+        <h4>Bantuan</h4>
+        <a href="https://wa.me/6287780313222?text=Halo%20Hydro%20Plantura%2C%20saya%20ingin%20bertanya%20tentang%20produk."
+           target="_blank"
+           class="footer-wa-btn">
+          Hubungi Kami
+        </a>
+      </div>
+      <div>
+        <h4>Ikuti Kami</h4>
+        <a href="https://instagram.com/hydroplantura" target="_blank" class="footer-social">Instagram</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© <span id="yr"></span> Hydro Plantura — All rights reserved</div>
+  </footer>
+
+  <!-- CART DRAWER -->
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="cart-header">
+      <strong>Keranjang</strong>
+      <button onclick="closeCart()">✕</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-footer">
+      <div><small>Subtotal:</small><div id="cart-subtotal"></div></div>
+      <!-- gunakan openCheckout() sesuai main.js -->
+      <button class="btn-primary" onclick="openCheckout()">Checkout</button>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkout-modal" class="modal" style="display:none">
+    <div class="modal-backdrop" onclick="closeCheckout()"></div>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h3>Checkout — Isi detail pengiriman</h3>
+        <button onclick="closeCheckout()">✕</button>
+      </div>
+
+      <form id="checkout-form" onsubmit="submitCheckout(event)">
+        <div class="form-row">
+          <label>Nama lengkap <span class="required">*</span></label>
+          <input type="text" id="checkout-name" placeholder="Nama lengkap" required>
+        </div>
+
+        <div class="form-row">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" id="checkout-email" placeholder="email@contoh.com" required>
+        </div>
+
+        <div class="form-row">
+          <label>Alamat (ketik lalu pilih dari saran) <span class="required">*</span></label>
+          <input type="text" id="checkout-address" placeholder="Jl. Contoh No.1, Jakarta" autocomplete="off" required>
+        </div>
+
+        <div class="form-row small muted">Pilih lokasi tepat pada peta (untuk mendapatkan koordinat)</div>
+
+        <div id="checkout-map" class="checkout-map"></div>
+
+        <div class="form-row" style="display:flex;gap:8px;margin-top:8px">
+          <div style="flex:1">
+            <label>Latitude</label>
+            <input id="checkout-lat" readonly>
+          </div>
+          <div style="flex:1">
+            <label>Longitude</label>
+            <input id="checkout-lng" readonly>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="muted small">
+          Data yang dikirim ke WhatsApp akan berisi nama, email, alamat, koordinat, dan isi keranjang.
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" onclick="closeCheckout()">Batal</button>
+          <button type="submit" class="btn-primary">Bayar via WhatsApp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Leaflet JS (no integrity) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- main script -->
+  <script src="main.js"></script>
+
+  
+  <!-- small inline script: wire up category-filter buttons to renderProducts -->
+  <script>
+    (function(){
+      const wrap = document.getElementById('category-filters');
+      if(!wrap) return;
+
+      // mark initial active
+      const first = wrap.querySelector('.cat-card[data-cat="all"]');
+      if(first) first.classList.add('active');
+
+      wrap.addEventListener('click', (e) => {
+        const btn = e.target.closest('.cat-card');
+        if(!btn) return;
+        // visual active
+        Array.from(wrap.querySelectorAll('.cat-card')).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const cat = btn.getAttribute('data-cat') || 'all';
+
+        // call renderProducts (exists in main.js)
+        if(typeof renderProducts === 'function'){
+          if(cat === 'all') renderProducts('all','');
+          else renderProducts(cat,'');
+        } else {
+          console.warn('renderProducts not found (main.js belum dimuat?)');
+        }
+
+        // scroll product grid into view for UX
+        const grid = document.getElementById('products-grid');
+        if(grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    })();
+
+    (function(){
+  const cs = document.getElementById('custom-filter');
+  if(!cs) return;
+
+  const trigger = cs.querySelector('.cs-trigger');
+  const labelEl = cs.querySelector('.cs-label');
+  const list = cs.querySelector('.cs-options');
+  const items = Array.from(list.querySelectorAll('li'));
+
+  // apply color dots from data-color
+  items.forEach(li => {
+    const c = li.getAttribute('data-color') || '#bdbdbd';
+    li.style.setProperty('--dot-color', c);
+    // apply as inline style to ::before via background by setting attribute style
+    li.style.setProperty('background-color', ''); // no-op but allows later manip
+    li.style.setProperty('color-dot', c);
+    // we'll set the actual pseudo-element by injecting a tiny style per li:
+    li.style.setProperty('--dot-color', c);
+    // Use inline style to set before via box-shadow hack: create small circle using border-left
+    li.querySelector ? null : null;
+  });
+
+  // small helper: set ::before bg using dynamic style tag
+  const styleId = 'cs-dots-style';
+  if(!document.getElementById(styleId)){
+    const ss = document.createElement('style');
+    ss.id = styleId;
+    document.head.appendChild(ss);
+  }
+  const ss = document.getElementById(styleId);
+  // build rules for each li (use nth-child mapping)
+  const rules = items.map((li, idx) => {
+    const c = li.getAttribute('data-color') || '#bdbdbd';
+    return `#custom-filter .cs-options li:nth-child(${idx+1})::before{background:${c};}`;
+  }).join('\n');
+  ss.textContent = rules;
+
+  // open/close
+  function open(){
+    cs.classList.add('open');
+    cs.setAttribute('aria-expanded','true');
+    list.focus();
+  }
+  function close(){
+    cs.classList.remove('open');
+    cs.setAttribute('aria-expanded','false');
+  }
+
+  // click trigger toggles
+  trigger.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(cs.classList.contains('open')) close(); else open();
+  });
+
+  // click outside closes
+  document.addEventListener('click', (e)=>{
+    if(!cs.contains(e.target)) close();
+  });
+
+  // keyboard support (Enter toggles, Esc closes)
+  cs.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') { close(); cs.blur(); }
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if(cs.classList.contains('open')) close(); else open(); }
+    if(e.key === 'ArrowDown'){ e.preventDefault(); open(); const first = list.querySelector('li'); if(first) first.focus(); }
+  });
+
+  // item click: set selection
+  items.forEach(li => {
+    li.tabIndex = 0;
+    li.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      selectItem(li);
+      close();
+    });
+    li.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectItem(li); close(); }
+      if(ev.key === 'ArrowDown'){ ev.preventDefault(); const next = li.nextElementSibling; if(next) next.focus(); }
+      if(ev.key === 'ArrowUp'){ ev.preventDefault(); const prev = li.previousElementSibling; if(prev) prev.focus(); }
+    });
+  });
+
+  function selectItem(li){
+    // clear selected
+    items.forEach(x=>x.classList.remove('selected'));
+    li.classList.add('selected');
+    const v = li.getAttribute('data-value') || 'all';
+    const text = li.textContent.trim();
+    labelEl.textContent = text;
+    cs.dataset.value = v;
+
+    // call renderProducts; support 'all' or single category
+    const searchEl = document.getElementById('search');
+    const searchVal = searchEl ? (searchEl.value || '') : '';
+    if(typeof renderProducts === 'function'){
+      if(v === 'all') renderProducts('all', searchVal);
+      else renderProducts(v, searchVal);
+    } else {
+      console.warn('renderProducts not found');
+    }
+  }
+
+  // initial: ensure one selected
+  const init = list.querySelector('li.selected') || list.querySelector('li[data-value="all"]');
+  if(init) selectItem(init);
+
+})();
+  </script>
+</body>
+</html>

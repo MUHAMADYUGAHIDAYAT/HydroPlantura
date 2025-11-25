@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hydro Plantura — Panduan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+        <header class="topbar">
+    <div class="container inner">
+      <div class="brand">
+        <img src="logo.png" alt="Hydro Plantura logo">
+        <div>
+          <h1>Hydro Plantura</h1>
+          <p>Grow. Design. Inspire.</p>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <a href="index.html">Home</a>
+        <a href="products.html">Produk</a>
+        <a href="guides.html">Panduan</a>
+        <a href="about.html">Tentang</a>
+        <button class="btn-primary cart-btn" id="open-cart">Keranjang 
+          <span class="cart-count" id="cart-count" style="display:none">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="guides">
+      <h3>Panduan & Tips</h3>
+      <div class="guides">
+        <div class="guide">
+          <h4>Panduan Pemula: Memulai Aquascape</h4>
+          <p>Langkah demi langkah memilih substrate, tanaman, dan filter.</p>
+        </div>
+        <div class="guide">
+          <h4>Perawatan Tanaman Hidup</h4>
+          <p>Tips pemupukan dan pencahayaan agar tanaman cepat tumbuh.</p>
+        </div>
+        <div class="guide">
+          <h4>Pengemasan & Pengiriman Aman</h4>
+          <p>Cara packing tanaman & ikan hidup agar aman.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="f-grid">
+      <div>
+        <p>Premium aquascape supply — tanaman, ikan, hardscape, dan aksesoris.</p>
+      </div>
+      <div>
+        <h4>Bantuan</h4>
+        <a href="https://wa.me/6287780313222?text=Halo%20Hydro%20Plantura%2C%20saya%20ingin%20bertanya%20tentang%20produk."
+     target="_blank"
+     class="footer-wa-btn">
+     Hubungi Kami
+  </a>
+      </div>
+      <div>
+        <h4>Ikuti Kami</h4>
+             <a href="https://instagram.com/hydroplantura" 
+     target="_blank" 
+     class="footer-social">
+     Instagram
+  </a>
+      </div>
+    </div>
+    <div class="footer-bottom">© <span id="yr"></span> Hydro Plantura — All rights reserved</div>
+  </footer>
+
+  <div id="cart-drawer" class="cart-drawer">
+    <div class="cart-header">
+      <strong>Keranjang</strong>
+      <button onclick="closeCart()">✕</button>
+    </div>
+    <div id="cart-items"></div>
+    <div class="cart-footer">
+      <div><small>Subtotal:</small><div id="cart-subtotal"></div></div>
+      <button class="btn-primary" onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+<!-- CHECKOUT MODAL  -->
+<div id="checkout-modal" class="modal" style="display:none">
+  <div class="modal-backdrop" onclick="closeCheckout()"></div>
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h3>Checkout — Isi detail pengiriman</h3>
+      <button onclick="closeCheckout()">✕</button>
+    </div>
+
+    <form id="checkout-form" onsubmit="submitCheckout(event)">
+      <div class="form-row">
+        <label>Nama lengkap <span class="required">*</span></label>
+        <input type="text" id="checkout-name" placeholder="Nama lengkap" required>
+      </div>
+
+      <div class="form-row">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" id="checkout-email" placeholder="email@contoh.com" required>
+      </div>
+
+      <div class="form-row">
+        <label>Alamat (ketik lalu pilih dari saran) <span class="required">*</span></label>
+        <input type="text" id="checkout-address" placeholder="Jl. Contoh No.1, Jakarta" autocomplete="off" required>
+      </div>
+
+      <div class="form-row small muted">Pilih lokasi tepat pada peta (untuk mendapatkan koordinat)</div>
+
+      <div id="checkout-map" class="checkout-map"></div>
+
+      <div class="form-row" style="display:flex;gap:8px;margin-top:8px">
+        <div style="flex:1">
+          <label>Latitude</label>
+          <input id="checkout-lat" readonly>
+        </div>
+        <div style="flex:1">
+          <label>Longitude</label>
+          <input id="checkout-lng" readonly>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="muted small">
+        Data yang dikirim ke WhatsApp akan berisi nama, email, alamat, koordinat, dan isi keranjang.
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" onclick="closeCheckout()">Batal</button>
+        <button type="submit" class="btn-primary">Bayar via WhatsApp</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="main.js"></script>
+</body>
+</html>
