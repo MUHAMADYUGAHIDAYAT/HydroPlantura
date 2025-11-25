@@ -482,3 +482,59 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
+document.addEventListener("DOMContentLoaded", () => {
+
+  const nav = document.querySelector(".main-nav");
+  if (!nav) return;
+
+  let toggle = document.getElementById("nav-toggle");
+  if (!toggle) {
+    toggle = document.createElement("button");
+    toggle.id = "nav-toggle";
+    toggle.className = "nav-inject-toggle";
+    toggle.innerHTML = `<span class="bar"></span>`;
+    document.body.appendChild(toggle);
+  }
+
+  function openNav() {
+    nav.classList.add("open");
+    document.body.classList.add("menu-open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeNav() {
+    nav.classList.remove("open");
+    document.body.classList.remove("menu-open");
+    document.body.style.overflow = "";
+  }
+
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (nav.classList.contains("open")) closeNav();
+    else openNav();
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!nav.classList.contains("open")) return;
+    if (nav.contains(e.target) || toggle.contains(e.target)) return;
+    closeNav();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeNav();
+  });
+
+  window.addEventListener("resize", () => {
+    if (innerWidth > 900) closeNav();
+  });
+
+});
+(function(){
+  const nav=document.querySelector('.main-nav');
+  const toggle=document.getElementById('nav-toggle')||document.querySelector('.nav-inject-toggle');
+  if(!nav) return;
+  nav.addEventListener('click', function(e){ e.stopPropagation(); });
+  if(toggle) toggle.addEventListener('click', function(e){ e.stopPropagation(); });
+})();
+
+
