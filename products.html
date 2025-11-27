@@ -104,56 +104,60 @@
   </div>
 
   <!-- CHECKOUT MODAL -->
-  <div id="checkout-modal" class="modal" style="display:none">
-    <div class="modal-backdrop" onclick="closeCheckout()"></div>
-    <div class="modal-panel">
-      <div class="modal-header">
-        <h3>Checkout — Isi detail pengiriman</h3>
-        <button onclick="closeCheckout()">✕</button>
+<div id="checkout-modal" class="modal" style="display:none">
+  <div class="modal-backdrop" onclick="closeCheckout()"></div>
+  <div class="modal-panel">
+    <div class="modal-header">
+      <h3>Checkout — Isi detail pengiriman</h3>
+      <button onclick="closeCheckout()">✕</button>
+    </div>
+
+    <form id="checkout-form" onsubmit="submitCheckout(event)">
+      <div class="form-row">
+        <label>Nama lengkap <span class="required">*</span></label>
+        <input type="text" id="checkout-name" placeholder="Nama lengkap" required>
       </div>
 
-      <form id="checkout-form" onsubmit="submitCheckout(event)">
-        <div class="form-row">
-          <label>Nama lengkap <span class="required">*</span></label>
-          <input type="text" id="checkout-name" placeholder="Nama lengkap" required>
+      <div class="form-row">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" id="checkout-email" placeholder="email@contoh.com" required>
+      </div>
+
+      <div class="form-row">
+        <label>Alamat (ketik lalu pilih dari saran) <span class="required">*</span></label>
+        <input type="text" id="checkout-address" placeholder="Jl. Contoh No.1, Jakarta" autocomplete="off" required>
+      </div>
+
+      <div class="form-row small muted">Pilih lokasi tepat pada peta (untuk mendapatkan koordinat)</div>
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+            <a id="open-in-google" href="#" target="_blank" style="display:none;font-weight:600">Buka di Google Maps</a>
+            <button type="button" id="use-browser-loc" class="btn-ghost" title="Gunakan lokasi browser">Gunakan Lokasi Saya</button>
         </div>
 
-        <div class="form-row">
-          <label>Email <span class="required">*</span></label>
-          <input type="email" id="checkout-email" placeholder="email@contoh.com" required>
+      <div id="checkout-map" class="checkout-map"></div>
+
+      <div class="form-row" style="display:flex;gap:8px;margin-top:8px">
+        <div style="flex:1">
+          <label>Latitude</label>
+          <input id="checkout-lat" readonly>
         </div>
-
-        <div class="form-row">
-          <label>Alamat (ketik lalu pilih dari saran) <span class="required">*</span></label>
-          <input type="text" id="checkout-address" placeholder="Jl. Contoh No.1, Jakarta" autocomplete="off" required>
+        <div style="flex:1">
+          <label>Longitude</label>
+          <input id="checkout-lng" readonly>
         </div>
+      </div>
 
-        <div class="form-row small muted">Pilih lokasi tepat pada peta (untuk mendapatkan koordinat)</div>
+      <div style="margin-top:12px" class="muted small">
+        Data yang dikirim ke WhatsApp akan berisi nama, email, alamat, koordinat, dan isi keranjang.
+      </div>
 
-        <div id="checkout-map" class="checkout-map"></div>
-
-        <div class="form-row" style="display:flex;gap:8px;margin-top:8px">
-          <div style="flex:1">
-            <label>Latitude</label>
-            <input id="checkout-lat" readonly>
-          </div>
-          <div style="flex:1">
-            <label>Longitude</label>
-            <input id="checkout-lng" readonly>
-          </div>
-        </div>
-
-        <div style="margin-top:12px" class="muted small">
-          Data yang dikirim ke WhatsApp akan berisi nama, email, alamat, koordinat, dan isi keranjang.
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn-ghost" onclick="closeCheckout()">Batal</button>
-          <button type="submit" class="btn-primary">Bayar via WhatsApp</button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" onclick="closeCheckout()">Batal</button>
+        <button type="submit" class="btn-primary">Bayar via WhatsApp</button>
+      </div>
+    </form>
   </div>
+</div>
 
   <!-- Leaflet JS (no integrity) -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -303,3 +307,4 @@
   </script>
 </body>
 </html>
+
