@@ -6,13 +6,14 @@
   <title>Hydro Plantura — Produk</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-  <!-- Leaflet  -->
+  <!-- Leaflet CSS (tanpa integrity untuk menghindari SRI block) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
   <header class="topbar">
     <div class="container inner">
       <div class="brand">
+        <!-- gunakan path lokal logo yang kamu upload -->
         <img src="logo.png" alt="Hydro Plantura logo" style="height:56px;">
         <div>
           <h1>Hydro Plantura</h1>
@@ -34,6 +35,8 @@
 
   <main class="container">
     <section id="products">
+
+      <!-- Custom colored dropdown (replace old <select>) -->
 <div class="filter-row">
   <div class="filter-left">
 
@@ -60,7 +63,7 @@
 </div>
 
 
-      <!-- products grid  -->
+      <!-- products grid (renderer in main.js expects id="products-grid") -->
       <div class="products-grid" id="products-grid"></div>
     </section>
   </main>
@@ -95,12 +98,13 @@
     <div id="cart-items"></div>
     <div class="cart-footer">
       <div><small>Subtotal:</small><div id="cart-subtotal"></div></div>
+      <!-- gunakan openCheckout() sesuai main.js -->
       <button class="btn-primary" onclick="openCheckout()">Checkout</button>
     </div>
   </div>
 
   <!-- CHECKOUT MODAL -->
-<div id="checkout-modal" class="modal" style="display:none">
+  <div id="checkout-modal" class="modal" style="display:none">
   <div class="modal-backdrop" onclick="closeCheckout()"></div>
   <div class="modal-panel">
     <div class="modal-header">
@@ -149,35 +153,38 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-ghost" onclick="closeCheckout()">Batal</button>
-        <button type="submit" class="btn-primary">Bayar via WhatsApp</button>
+        <button type="submit" class="btn-primary">Bayar via Qris</button>
       </div>
     </form>
   </div>
 </div>
 
+  <!-- Leaflet JS (no integrity) -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <!-- main script -->
   <script src="main.js"></script>
 
   
+  <!-- small inline script: wire up category-filter buttons to renderProducts -->
   <script>
     (function(){
       const wrap = document.getElementById('category-filters');
       if(!wrap) return;
 
- 
+      // mark initial active
       const first = wrap.querySelector('.cat-card[data-cat="all"]');
       if(first) first.classList.add('active');
 
       wrap.addEventListener('click', (e) => {
         const btn = e.target.closest('.cat-card');
         if(!btn) return;
-
+        // visual active
         Array.from(wrap.querySelectorAll('.cat-card')).forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         const cat = btn.getAttribute('data-cat') || 'all';
 
+        // call renderProducts (exists in main.js)
         if(typeof renderProducts === 'function'){
           if(cat === 'all') renderProducts('all','');
           else renderProducts(cat,'');
@@ -185,6 +192,7 @@
           console.warn('renderProducts not found (main.js belum dimuat?)');
         }
 
+        // scroll product grid into view for UX
         const grid = document.getElementById('products-grid');
         if(grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
@@ -199,15 +207,20 @@
   const list = cs.querySelector('.cs-options');
   const items = Array.from(list.querySelectorAll('li'));
 
+  // apply color dots from data-color
   items.forEach(li => {
     const c = li.getAttribute('data-color') || '#bdbdbd';
     li.style.setProperty('--dot-color', c);
-    li.style.setProperty('background-color', ''); 
+    // apply as inline style to ::before via background by setting attribute style
+    li.style.setProperty('background-color', ''); // no-op but allows later manip
     li.style.setProperty('color-dot', c);
+    // we'll set the actual pseudo-element by injecting a tiny style per li:
     li.style.setProperty('--dot-color', c);
+    // Use inline style to set before via box-shadow hack: create small circle using border-left
     li.querySelector ? null : null;
   });
 
+  // small helper: set ::before bg using dynamic style tag
   const styleId = 'cs-dots-style';
   if(!document.getElementById(styleId)){
     const ss = document.createElement('style');
@@ -215,13 +228,14 @@
     document.head.appendChild(ss);
   }
   const ss = document.getElementById(styleId);
+  // build rules for each li (use nth-child mapping)
   const rules = items.map((li, idx) => {
     const c = li.getAttribute('data-color') || '#bdbdbd';
     return `#custom-filter .cs-options li:nth-child(${idx+1})::before{background:${c};}`;
   }).join('\n');
   ss.textContent = rules;
 
-
+  // open/close
   function open(){
     cs.classList.add('open');
     cs.setAttribute('aria-expanded','true');
@@ -232,22 +246,25 @@
     cs.setAttribute('aria-expanded','false');
   }
 
-
+  // click trigger toggles
   trigger.addEventListener('click', (e)=>{
     e.stopPropagation();
     if(cs.classList.contains('open')) close(); else open();
   });
 
+  // click outside closes
   document.addEventListener('click', (e)=>{
     if(!cs.contains(e.target)) close();
   });
 
+  // keyboard support (Enter toggles, Esc closes)
   cs.addEventListener('keydown', (e)=>{
     if(e.key === 'Escape') { close(); cs.blur(); }
     if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if(cs.classList.contains('open')) close(); else open(); }
     if(e.key === 'ArrowDown'){ e.preventDefault(); open(); const first = list.querySelector('li'); if(first) first.focus(); }
   });
 
+  // item click: set selection
   items.forEach(li => {
     li.tabIndex = 0;
     li.addEventListener('click', (ev)=>{
@@ -263,6 +280,7 @@
   });
 
   function selectItem(li){
+    // clear selected
     items.forEach(x=>x.classList.remove('selected'));
     li.classList.add('selected');
     const v = li.getAttribute('data-value') || 'all';
@@ -270,6 +288,7 @@
     labelEl.textContent = text;
     cs.dataset.value = v;
 
+    // call renderProducts; support 'all' or single category
     const searchEl = document.getElementById('search');
     const searchVal = searchEl ? (searchEl.value || '') : '';
     if(typeof renderProducts === 'function'){
@@ -280,6 +299,7 @@
     }
   }
 
+  // initial: ensure one selected
   const init = list.querySelector('li.selected') || list.querySelector('li[data-value="all"]');
   if(init) selectItem(init);
 
@@ -287,5 +307,3 @@
   </script>
 </body>
 </html>
-
-
