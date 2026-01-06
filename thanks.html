@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Hydro Plantura — Pembayaran Berhasil</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container" style="padding:24px 0">
+    <h2>Terima kasih! ✅</h2>
+    <p class="muted">Jika pembayaran berhasil, klik tombol di bawah untuk mengirim detail pesanan ke admin.</p>
+
+    <div id="order-preview" class="glass-card" style="padding:16px;margin:16px 0"></div>
+
+    <button id="send-wa" class="btn-primary">Kirim Detail ke WhatsApp Admin</button>
+    <div class="muted small" style="margin-top:10px">Catatan: WhatsApp akan terbuka dengan pesan yang sudah terisi.</div>
+  </main>
+
+  <script>
+    const ADMIN_WA = "6287780313222"; // nomor WA kamu (tanpa +)
+    const params = new URLSearchParams(location.search);
+    const orderId = params.get("order_id");
+
+    function formatIDR(n){
+      return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR"}).format(n);
+    }
+
+    const preview = document.getElementById("order-preview");
+    const btn = document.getElementById("send-wa");
+
+    if(!orderId){
+      preview.innerHTML = "<b>Order ID tidak ditemukan.</b><div class='muted small'>Kembali ke halaman toko dan coba lagi.</div>";
+      btn.disabled = true;
+    } else {
+      const raw = localStorage.getItem(`hp_order_${orderId}`);
+      if(!raw){
+        preview.innerHTML = `<b>Data order tidak ditemukan.</b><div class='muted small'>Order ID: ${orderId}</div>`;
+        btn.disabled = true;
+      } else {
+        const order = JSON.parse(raw);
+
+        const itemsText = order.items.map(i => `- ${i.name} x${i.qty} = ${formatIDR(i.price*i.qty)}`).join("\n");
+
+        preview.innerHTML = `
+          <div><b>Order ID:</b> ${order.orderId}</div>
+          <div><b>Nama:</b> ${order.customer.name}</div>
+          <div><b>Email:</b> ${order.customer.email}</div>
+          <div><b>Alamat:</b> ${order.customer.address}</div>
+          <div><b>Koordinat:</b> ${order.customer.lat || "-"}, ${order.customer.lng || "-"}</div>
+          <div style="margin-top:10px"><b>Subtotal:</b> ${formatIDR(order.subtotal)}</div>
+        `;
+
+        btn.addEventListener("click", () => {
+          const msg = [
+            `*Pembayaran Berhasil — Hydro Plantura*`,
+            ``,
+            `*Order ID:* ${order.orderId}`,
+            `*Nama:* ${order.customer.name}`,
+            `*Email:* ${order.customer.email}`,
+            `*Alamat:* ${order.customer.address}`,
+            `*Koordinat:* ${order.customer.lat || "-"}, ${order.customer.lng || "-"}`,
+            ``,
+            `*Items:*`,
+            itemsText,
+            ``,
+            `*Subtotal:* ${formatIDR(order.subtotal)}`
+          ].join("\n");
+
+          const waLink = `https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`;
+          window.open(waLink, "_blank");
+        });
+      }
+    }
+  </script>
+</body>
+</html>
