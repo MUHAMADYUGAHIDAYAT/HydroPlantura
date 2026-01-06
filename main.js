@@ -376,9 +376,12 @@ function submitCheckout(e){
   }));
 
   // Pakasir Via URL + QRIS only
-  const payUrl =
-    `https://app.pakasir.com/pay/${encodeURIComponent(PAKASIR_SLUG)}/${subtotal}` +
-    `?order_id=${encodeURIComponent(orderId)}&qris_only=1`;
+  const redirectUrl = `${location.origin}/thanks.html?order_id=${encodeURIComponent(orderId)}`;
+
+const payUrl =
+  `https://app.pakasir.com/pay/${encodeURIComponent(PAKASIR_SLUG)}/${subtotal}` +
+  `?order_id=${encodeURIComponent(orderId)}&qris_only=1` +
+  `&redirect=${encodeURIComponent(redirectUrl)}`;
 
   // arahkan ke halaman QRIS Pakasir
   window.location.href = payUrl;
