@@ -376,7 +376,9 @@ function submitCheckout(e){
   }));
 
   // Pakasir Via URL + QRIS only
-  const redirectUrl = `${location.origin}/thanks.html?order_id=${encodeURIComponent(orderId)}`;
+  const baseDir = location.href.substring(0, location.href.lastIndexOf('/') + 1);
+const redirectUrl = `${baseDir}thanks.html?order_id=${encodeURIComponent(orderId)}`;
+
 
 const payUrl =
   `https://app.pakasir.com/pay/${encodeURIComponent(PAKASIR_SLUG)}/${subtotal}` +
@@ -564,3 +566,4 @@ function checkout(){
   closeCart();
   openCheckout();
 }
+
