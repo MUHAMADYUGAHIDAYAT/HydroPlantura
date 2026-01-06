@@ -27,6 +27,7 @@ const PRODUCTS = [
   { id:19, name:'Ceratophyllum Demersum', price:10000, tag:'Tanaman', img:'https://bibitonline.com/wp-content/uploads/Ceratophyllum-Demersum.jpg' },
   { id:20, name:'Seiryu Stone', price:20000, tag:'Hardscape', img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSF0LUCa8jgp16FgxHXaPOOQQ8u-EDLs5-3mw&s' },
   { id:21, name:'Lava Rock 1kg', price:50000, tag:'Hardscape', img:'https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full//111/MTA-36299784/no_brand_batu_lava_rock_1kg_aquascape_aquarium_lavarock_larva_rock_1_kg_kilo_full01_marwx1z2.jpg' },
+  { id:22, name:'test', price:1000, tag:'Hardscape', img:'' },
 ];
 
 // ---------------------------
@@ -342,6 +343,7 @@ function closeCheckout(){
 // submitCheckout -> build WA message & open WA
 function submitCheckout(e){
   e.preventDefault();
+
   const name = (document.getElementById('checkout-name') || {}).value || '';
   const email = (document.getElementById('checkout-email') || {}).value || '';
   const address = (document.getElementById('checkout-address') || {}).value || '';
@@ -358,31 +360,32 @@ function submitCheckout(e){
     return;
   }
 
-  const itemsText = CART.map(i => `- ${i.name} x${i.qty} = ${formatIDR(i.price * i.qty)}`).join('\n');
+  // subtotal sesuai isi keranjang
   const subtotal = CART.reduce((a,b)=>a + (b.price*b.qty), 0);
 
-  const message = [
-    `*Order Baru — Hydro Plantura*`,
-    ``,
-    `*Nama:* ${name}`,
-    `*Email:* ${email}`,
-    `*Alamat:* ${address}`,
-    `*Koordinat:* ${lat || '-'}, ${lng || '-'}`,
-    ``,
-    `*Items:*`,
-    `${itemsText}`,
-    ``,
-    `*Subtotal:* ${formatIDR(subtotal)}`,
-    ``,
-    `Silakan konfirmasi ketersediaan & biaya kirim. Terima kasih!`
-  ].join('\n');
+  // order_id unik
+  const orderId = makeOrderId();
 
-  const encoded = encodeURIComponent(message);
-  const waLink = `https://wa.me/6287780313222?text=${encoded}`;
-  window.open(waLink, '_blank');
+  // (opsional) simpan data order biar bisa dicek lagi
+  localStorage.setItem(`hp_order_${orderId}`, JSON.stringify({
+    orderId,
+    createdAt: new Date().toISOString(),
+    customer: { name, email, address, lat, lng },
+    items: CART.map(i => ({ id:i.id, name:i.name, qty:i.qty, price:i.price })),
+    subtotal
+  }));
+
+  // Pakasir Via URL + QRIS only
+  const payUrl =
+    `https://app.pakasir.com/pay/${encodeURIComponent(PAKASIR_SLUG)}/${subtotal}` +
+    `?order_id=${encodeURIComponent(orderId)}&qris_only=1`;
+
+  // arahkan ke halaman QRIS Pakasir
+  window.location.href = payUrl;
 
   closeCheckout();
 }
+
 
 // ---------------------------
 // Utilities + init
@@ -482,6 +485,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 })();
 
+/* ===========================================
+  MOBILE NAV FIX — CLEAN, STABLE, NO CONFLICT
+   =========================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
 
   const nav = document.querySelector(".main-nav");
@@ -537,4 +544,20 @@ document.addEventListener("DOMContentLoaded", () => {
   if(toggle) toggle.addEventListener('click', function(e){ e.stopPropagation(); });
 })();
 
+const PAKASIR_SLUG = "sistempembayaranhydroplantura";
 
+function makeOrderId(){
+  const d = new Date();
+  const pad = (n)=> String(n).padStart(2,'0');
+  const stamp =
+    d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + "-" +
+    pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  const rand = Math.random().toString(36).slice(2,7).toUpperCase();
+  return `HP-${stamp}-${rand}`;
+}
+
+// supaya onclick="checkout()" di HTML kamu tidak error
+function checkout(){
+  closeCart();
+  openCheckout();
+}
